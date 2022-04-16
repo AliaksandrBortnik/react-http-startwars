@@ -1,14 +1,15 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 import MoviesList from './components/MoviesList';
 import './App.css';
+import AddMovie from './components/AddMovie';
 
 function App() {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchMoviesHandler = async () => {
+  const fetchMoviesHandler = useCallback(async () => {
     setIsLoading(true);
 
     try {
@@ -19,7 +20,6 @@ function App() {
       }
 
       const data = await response.json();
-
       const transformedMovies = data.results.map(item => ({
         id: item.episode_id,
         title: item.title,
@@ -29,15 +29,25 @@ function App() {
 
       setMovies(transformedMovies);
     } catch (e) {
-      console.dir(e)
       setError(e.message);
     }
 
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchMoviesHandler();
+  }, [fetchMoviesHandler]);
+
+  const addMovieHandler = (movie) => {
+    console.log(movie);
+  }
 
   return (
     <React.Fragment>
+      <section>
+        <AddMovie onAddMovie={addMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
